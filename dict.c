@@ -22,10 +22,16 @@ long int hash(char *s)
 
     return h;
 }
+
 void init(Dict *d, int size){
 	d->table = (ele*)malloc(size * sizeof(ele));
 	d->size = size;
+	d->i = 0;
+	d->words = (char **)malloc(sizeof(char *) * 100);
+	for (int i = 0; i < 100; ++i)
+		d->words[i] = (char *)malloc(30);
 }
+
 void Load(Dict *d, char*str){
 	long int h;
 	static int i = 0;
@@ -35,10 +41,12 @@ void Load(Dict *d, char*str){
 	d->table[i].h = h;
 	i++;
 }
+
 void PrintD(Dict *d){
 	for(int i = 0;i< d->size;i++)
 	printf("%s=%ld\n",(d->table[i]).a, d->table[i].h);
 }
+
 char * Search(Dict *d, char*str) {
 	long int h = hash(str);
 	for (int i = 0; i < d->size; ++i)
@@ -50,20 +58,21 @@ char * Search(Dict *d, char*str) {
 	return NULL;
 }
 
-int hashcompare(long int h1, long int h2) {
-	char str1[512], str2[512];
-	sprintf(str1, "%ld", h1);
-	sprintf(str2, "%ld", h2);
-	int miss = 0,i;
-	if(strlen(str1) != strlen(str2))
-		return 0;
-	for (i = 0; str1[i]; i++)
-	{
-		if(str1[i] != str2[i])
-			miss++;
-	}
-	if(miss < strlen(str1)/2)
-		return 1;
-	else
-		return 0;
+void reallocWords(Dict *d) {
+	for (int i = 0; i < 100; ++i)
+		free(d->words[i]);
+	free(d->words);
+	// printf("1\n");
+	char **p = (char **)malloc(sizeof(char *) * 100);
+	for (int i = 0; i < 100; ++i)
+		p[i] = (char *)malloc(30);	
+	d->words = p;
+	d->i = 0;
+}
+
+void DestroyTbl(Dict *d) {
+	free(d->table);
+	for (int i = 0; i < 100; ++i)
+		free(d->words[i]);
+	free(d->words);
 }
