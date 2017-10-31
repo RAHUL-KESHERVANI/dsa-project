@@ -4,6 +4,8 @@
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
+#include <error.h>
+#include <errno.h>
 #include <sys/ioctl.h>
 #include "dict.h"
 #include "ispell.h"
@@ -217,6 +219,10 @@ int main(int argc, char*argv[]) {
 
   if(argc == 2){
     fpr = fopen(argv[1], "r");
+    if(fpr == NULL){
+    	perror("");
+    	return errno;
+    }
     fpw = fopen("myfile", "w");
     clrscr();
     enableRawMode();
