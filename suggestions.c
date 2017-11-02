@@ -37,15 +37,12 @@ void compareEqualString(Dict *d, char *s, char *str) {
 	int lower = checkLower(str);
 	if(strcmp(s1, s2) == 0){
 		d->i = -1;
-		// printf("fdjkgf\n");
 		return;
 	}
 	int i = mystrcmp(s2, s1, 1);
 	if(i == 1){
 		s1 = toUpper(str, s);
-		// printf("one%s\n",s1);
 		d->words[(d->i)++] = s1;
-		// printf("fdasdfs\n");	
 	}
 }
 void compareUnEqualString(Dict *d, char *s, char *str, int flag) {
@@ -67,13 +64,11 @@ void compareUnEqualString(Dict *d, char *s, char *str, int flag) {
 		
 		if(flag == 1){
 			s1 = toUpper(str, s);
-			// printf("two%s\n",s1);
 			d->words[(d->i)++] = s1;
 		
 		}
 		else if(flag == -1){
 			s1 = toUpper(s, str);
-			// printf("three%s\n",s1);
 			d->words[(d->i)++] = s1;
 		}
 	}
@@ -88,6 +83,8 @@ void divideWords(Dict *d, char *s) {
 		if(Search(d, toLower(p1)) != NULL && Search(d, toLower(p2)) != NULL) {
 			p1[i] = ' ';p1[i+1] = '\0';
 			// printf("hgfhj\n");
+			p1 =toUpper(p1, p1);
+			p2 = toUpper(p2, p2);
 			strcpy(d->words[(d->i)], p1);
 			strcat(d->words[(d->i)++], p2);
 			p1[i] = '-';
@@ -163,15 +160,12 @@ void Master(Dict *d, char *str) {
 		printf("ok\n");
 		return;
 	}
-	// if(checkUpper(str) >= 2){
-	// 	p = toLower(str);
-	// }
+
 	if(Search(d, str) != NULL)
 		printf("ok\n");
 	
 	else{
 		p = strtok(str, delim);
-		// printf("delim = %s\n", p);
 		do{
 			if(p == NULL)
 				continue;
@@ -300,7 +294,13 @@ char *toUpper(char *str, char *s) {
 
 		}
 	}
-	// printf("%s\n", s1);
+	else
+	for (int i = 1; s1[i] != '\0'; ++i)
+	{
+		if(s1[i] >= 'A' && s1[i] <= 'Z'){
+			s1[i] += 32;
 
+		}
+	}
 		return s1;
 }
