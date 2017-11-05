@@ -240,7 +240,7 @@ int sugg(file *f, Dict *d, int i) {
   char c;
   char *p = strdup(f->line+ f->i), *str;
   int j;
-  if(d->i > 9) {
+  if(d->i > 10) {
     if(i > 1) {
       while(read(STDIN_FILENO, &c, 1) == 1){
         if(c == 'Q')
@@ -293,6 +293,29 @@ int sugg(file *f, Dict *d, int i) {
   return 0;
 
 }
+void Lookup(Dict *d) {
+  char *p, *s, *str, c;
+  int i = 0;
+  s = (char *)malloc(40);
+  str = (char *)malloc(200);
+  printf("Lookup string ('*' is wildcard):");
+  disableRawMode();
+  while((c = getchar()) != '\n')
+    str[i++] = c;
+    enableRawMode();
+  printf("\n");
+  for (int i = 0; i < d->size; ++i)
+  {
+    strcpy(s, d->table[i].a);
+    p = strstr(s, str);
+    if(p == s)
+      printf("%s\n", s);
+  }
+  printf("-- Type space to continue --\n");
+  while(read(STDIN_FILENO, &c, 1) == 1 && c != ' ');
+  free(str);
+ 
+}
 int getFileLength(char *f) {
   FILE *fp = fopen(f, "r");
   char c;int count = 0;
@@ -305,7 +328,7 @@ int getFileLength(char *f) {
 int main(int argc, char*argv[]) {
   Dict d;
   char buf[512], fbuf[512];
-  int i, len, j, rej, flag, k;
+  int i, j, k;
   FILE *fp, *fpr, *fpw;
   char c, *str;
   fp = fopen("british-english", "a+");
@@ -316,7 +339,6 @@ int main(int argc, char*argv[]) {
   while(fscanf(fp, "%s", fbuf) != -1){
     Load(&d, fbuf);
   }
-  
   if(argc == 1){
     while(scanf("%s", buf) != -1){
       Master(&d, buf);
@@ -336,21 +358,19 @@ int main(int argc, char*argv[]) {
       printf("error\n");
     clrscr();
     enableRawMode();
-    char c, *p;
-    int i =0, w, l, temp1, temp2;
+    int w, l;
     getWindowSize(&l, &w);
     file f;
     initf(&f, w);
-     strcpy(f.filename, argv[1]);
+    strcpy(f.filename, argv[1]);
     while((getfline(&f, fpr, w)) != EOF) {
       str = mystrtok(&f, w);
-      flag = 0;
-
       while(str != NULL) {
         i = FMaster(&d, str);
         if(i != CORRECT){
           printfile(&f, &d);
-         while (read(STDIN_FILENO, &c, 1) == 1 && c != 'R' && c != ' ' && c != 'A' && c != 'Q' && c!='I' && c!='U'&& (d.i == 0 || !isdigit(c)));
+          again:
+         while (read(STDIN_FILENO, &c, 1) == 1 && c != 'R' && c != ' ' && c != 'A' && c != 'L' && c != 'Q' && c!='I' && c!='U'&& (d.i == 0 || !isdigit(c)));
          /*6 options are there available R for replace*/
          /*number for replaing the suggested words*/
          /*A for accept the word for the rest of session*/
@@ -358,38 +378,42 @@ int main(int argc, char*argv[]) {
          /*I for adding the word to the dictionary*/
          /*U for adding the word to the dictionary in lowercase*/
          /*Q for quiting*/
+         if(c == 'L'){
+          Lookup(&d);
+          printfile(&f, &d);
+          goto again;
+        }
          switch(c){
-         case 'R':
-          OptionsR(&f);
-          break;
-          case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
-          k = sugg(&f, &d, c - '0');
-          if(k == Quit){
+           case 'R':
+            OptionsR(&f);
+            break;
+            case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
+              k = sugg(&f, &d, c - '0');
+              if(k == Quit){
+                clrscr();
+                return 0;
+              }
+              break;
+            case ' ':
+              clrscr();
+              break;
+            case 'A':
+              Load(&d, str);
+              break;
+            case 'I':
+              str[strlen(str)] = '\n';
+              fwrite(str, 1, strlen(str), fp);
+              break;
+            case 'U':
+              fwrite(toLower(str), 1, strlen(str), fp);
+            	break;
+           case'Q':
             clrscr();
             return 0;
-          }
-          break;
-          case ' ':
-          clrscr();
-          break;
-          case 'A':
-            Load(&d, str);
-          case 'I':
-          str[strlen(str)] = '\n';
-          fwrite(str, 1, strlen(str), fp);
-          break;
-          case 'U':
-          fwrite(toLower(str), 1, strlen(str), fp);
-         	break;
-         case'Q':
-          clrscr();
-          return 0;
-         
+          }  
        }
-          
-       }
-        (str = mystrtok(&f, w));
-        reallocWords(&d);
+       (str = mystrtok(&f, w));
+       reallocWords(&d);
       }
       clrscr();
       fwrite(f.line, 1 , strlen(f.line), fpw);
@@ -413,7 +437,5 @@ int main(int argc, char*argv[]) {
     DestroyFile(&f);
   }
   DestroyTbl(&d);
-  
   fclose(fp);
-  
 }
