@@ -1,0 +1,4 @@
+Ispell file mode takes input instantly- without any need to press enter (except for the replace option where user has to type the word to be replaced)
+For that, RAW mode enabling of the terminal (and switching canonical mode off) has been used in my ispell code. For this purpose, the given website was helpful 
+
+https://viewsourcecode.org/snaptoken/kilo/02.enteringRawMode.html
