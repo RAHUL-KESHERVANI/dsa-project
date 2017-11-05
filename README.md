@@ -1,3 +1,5 @@
+MINIPROJECT -ispell NAME- Rahul Keshervani MISID- 111603065
+
 LINUX COMMAND "ispell" will be implemented in this c based project.
 
 ITS FEATURES WILL BE AS FOLLOWS:
