@@ -40,3 +40,5 @@ I for accepting and putting it tot the dictionary file
 U for  accepting and putting it tot the dictionary file in lowercase
 
 Q for Quit
+
+test files and snapshots are in the tar ball test-and-snapshots
