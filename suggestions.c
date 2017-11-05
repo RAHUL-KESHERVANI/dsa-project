@@ -113,11 +113,18 @@ void fprintwords(Dict *d, int rows) {
 }	
 
 void compareEqualString(Dict *d, char *s, char *str) {
-	char *s2, *s1;	
+	char *s2, *s1, *temp;	
 	s1 = strdup(s);
 	s2 = strdup(str);
-	if(s2[0] >= 'A' && s2[0] <= 'Z')
+
+	if(allUpper(s2)){
+		temp = s1;
+		s1 = toUpper(s2, s1);
+		free(temp);
+	}
+	else if(s2[0] >= 'A' && s2[0] <= 'Z')
 		s2[0] += 32;
+	
 	if(strcmp(s1, s2) == 0){
 		d->i = -1;
 		return;
