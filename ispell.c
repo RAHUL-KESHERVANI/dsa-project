@@ -241,14 +241,14 @@ int sugg(file *f, Dict *d, int i) {
   char *p = strdup(f->line+ f->i), *str;
   int j;
   if(d->i > 10) {
-    if(i > 1) {
+    if(i > (d->i - 1) /10) {
       while(read(STDIN_FILENO, &c, 1) == 1){
         if(c == 'Q')
           return Quit;
         if(c == ' ')
           return Ignore;
         i = c - '0';
-        if(i <= 1)
+        if(i <= (d->i - 1) /10)
           break;
       }
     }
@@ -261,22 +261,21 @@ int sugg(file *f, Dict *d, int i) {
       continue;
       j = i;
       i= i *10 + c - '0';
-      if(i > d->i)
+      if(i >= d->i)
         i = j;
       else
         break;
     }
   }
-  else if(i > d->i){
+  else if(i >= d->i){
     while(read(STDIN_FILENO, &c, 1) == 1){
-         if(c == 'Q')
-          return Quit;
-        if(c == ' ')
-          return Ignore;
+      if(c == 'Q')
+        return Quit;
+      if(c == ' ')
+        return Ignore;
       if(!isdigit(c))
-      continue;
-
-      if(c - '0' <= d->i){
+        continue;
+      if(c - '0' < d->i){
         i = c - '0';
         break;
       }
