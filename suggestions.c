@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "dict.h"
 #include "ispell.h"
-
+#include <ctype.h>
 static int c;
 
 static int myCompare (const void * a, const void * b)
@@ -16,7 +16,7 @@ static int myCompare (const void * a, const void * b)
 void sort(const char *arr[], int n)
 {
     qsort (arr, n, sizeof (const char *), myCompare);
-    for (int i = 0; i < n - 1; ++i)
+    for (int i = 0; i < n -1; ++i)
     {
     	if(strcmp(arr[i], arr[i + 1]) == 0)
     		for(int j = i; j < n - 1;j++)
@@ -210,11 +210,11 @@ void Master(Dict *d, char *str) {
 			if(d->i > 0){
 				i = d->i;
 				printwords(d);
-				reallocWords(d);
+				// reallocWords(d);
 			}
 			else if(d->i == -1){
 				printf("ok\n");
-				reallocWords(d);
+				// reallocWords(d);
 				i = d->i;
 			}
 			else
