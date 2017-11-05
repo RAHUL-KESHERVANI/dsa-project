@@ -16,7 +16,7 @@ static int myCompare (const void * a, const void * b)
 void sort(const char *arr[], int n)
 {
     qsort (arr, n, sizeof (const char *), myCompare);
-    for (int i = 0; i < n; ++i)
+    for (int i = 0; i < n - 1; ++i)
     {
     	if(strcmp(arr[i], arr[i + 1]) == 0)
     		for(int j = i; j < n - 1;j++)
