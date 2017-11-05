@@ -8,7 +8,7 @@
 /**/
 #define delim "0123456789/%!@#$^&*()_+{}[]=\n;:\".,.><?-\\ \0"
 void Master(Dict *d, char *str);
-
+int allUpper(char * p);
 int mystrcmp(char *s1, char * s2, int miss);
 void printwords(Dict *d);
 void fprintwords(Dict *d, int r);
