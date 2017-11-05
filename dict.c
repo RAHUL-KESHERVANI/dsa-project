@@ -60,19 +60,10 @@ char * Search(Dict *d, char*str) {
 
 void reallocWords(Dict *d) {
 	for (int i = 0; i < 100; ++i)
-		free(d->words[i]);
-	free(d->words);
-	// printf("1\n");
-	char **p = (char **)malloc(sizeof(char *) * 100);
-	for (int i = 0; i < 100; ++i)
-		p[i] = (char *)malloc(30);	
-	d->words = p;
+		strcpy(d->words[i], "\0");
 	d->i = 0;
 }
 
 void DestroyTbl(Dict *d) {
 	free(d->table);
-	for (int i = 0; i < 100; ++i)
-		free(d->words[i]);
-	free(d->words);
 }
