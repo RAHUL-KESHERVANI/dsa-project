@@ -48,7 +48,7 @@ void printwords(Dict *d) {
     	}
     }
     d->i -= c; 
-    
+
     printf("how about:");
    	for(j = 0;j < d->i - 1;j++)
 			printf("%s, ", d->words[j]);
@@ -57,10 +57,20 @@ void printwords(Dict *d) {
 
 /*prints the suggested words in the file interface*/
 void fprintwords(Dict *d, int rows) {
-	int j, residual;
+	int j, residual, i, c = 0;
 	rows-= 7;
 	int count = 0;
     sort((const char**)d->words, d->i);
+    for (i = 0; i < d->i - c; ++i)
+    {
+    	if(strcmp(d->words[i], d->words[i + 1]) == 0){
+    		for(j = i; j < d->i - c;j++)
+    			strcpy(d->words[j], d->words[j+1]);
+    		c++;
+    	}
+    }
+    d->i -= c; 
+    
     if(d->i > 10){
     	count = 1;
     }
