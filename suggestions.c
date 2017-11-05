@@ -1,9 +1,27 @@
+/**************************************************************************
+ *   suggestions.c  --  This file is a part of DSA miniproject.                *
+ *                                                                        *
+ *   Copyright 2017   (C)   Rahul Keshervani                            *
+ *                                                                        *
+ *   ispell is free software: you can redistribute it and/or modify     *
+ *   it under the terms of the GNU General Public License as published    *
+ *   by the Free Software Foundation, either version 3 of the License,    *
+ *   or (at your option) any later version.                               *
+ *                                                                        *
+ *   ispell is distributed in the hope that it will be useful,          *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty          *
+ *   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.              *
+ *   See the GNU General Public License for more details.                 *
+ *                                                                        *
+ *   You should have received a copy of the GNU General Public License    *
+ *   along with this program.  If not, see http://www.gnu.org/licenses/.  *
+ *                                                                        *
+ **************************************************************************/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "dict.h"
 #include "ispell.h"
-#include <ctype.h>
 static int c;
 
 static int myCompare (const void * a, const void * b)
@@ -13,41 +31,97 @@ static int myCompare (const void * a, const void * b)
     return strcmp (toLower(a1), toLower(a2));
 }
  
-void sort(const char *arr[], int n)
+int sort(const char *arr[], int n)
 {
+	int c = 0;
     qsort (arr, n, sizeof (const char *), myCompare);
-    for (int i = 0; i < n -1; ++i)
+    for (int i = 0; i < n - c - 1; ++i)
     {
-    	if(strcmp(arr[i], arr[i + 1]) == 0)
-    		for(int j = i; j < n - 1;j++)
+    	if(strcmp(arr[i], arr[i + 1]) == 0){
+    		for(int j = i; j < n - c - 1;j++)
     			arr[j] = arr[j+1];
+    		c++;
+    	}
     }
+    return c;
 }
 void printwords(Dict *d) {
-	int j;
-    sort((const char**)d->words, d->i);
+	// if(d->i < 1)
+	// 	return;
+	int i, j;
+    i = sort((const char**)d->words, d->i);
+    d->i -= i; 
     printf("how about:");
    	for(j = 0;j < d->i-1;j++)
 			printf("%s, ", d->words[j]);
 	printf("%s\n", d->words[j]);
 }
 
+/*prints the suggested words in the file interface*/
+void fprintwords(Dict *d, int rows) {
+	int j, residual;
+	rows-= 7;
+	int count = 0;
+    sort((const char**)d->words, d->i);
+    if(d->i > 10){
+    	count = 1;
+    }
+    if(d->i < rows){
+    	j = 0;
+	    if(d->i != 0){
+		   	for(;j < d->i-1;j++) {
+		   		if(count && j < 10)
+		   			printf("0");
+				printf("%d)%s\n", j, d->words[j]);
+			}
+			if(count && j < 10)
+				printf("0");	
+			printf("%d)%s\n",j,  d->words[j]);
+			j++;
+		}
+		while(j <= rows){
+			printf("\n");
+			j++;
+		}
+   	}
+	else{
+		j = 0;
+		residual = d->i - rows;
+		while(residual > 0) {
+			if(count && j < 10)
+   				printf("0");
+			printf("%d)%s\t\t%d)%s\n", j, d->words[j], j+rows, d->words[j+rows]);
+			residual--;
+			j++;
+		}
+		for(;j < rows-1;j++){
+   			if(count && j < 10)
+   			printf("0");
+				printf("%d)%s\n", j, d->words[j]);
+	   	}
+		printf("%d)%s\n\n",j,  d->words[j]);
+	}
+
+}	
 
 void compareEqualString(Dict *d, char *s, char *str) {
-	char *s1 = (char *)malloc(strlen(s));
-	char *s2 = (char *)malloc(strlen(str));
-	s1 = toLower(s);
-	s2 = toLower(str);
-	int lower = checkLower(str);
+	char *s2, *s1;	
+	s1 = strdup(s);
+	s2 = strdup(str);
+	if(s2[0] >= 'A' && s2[0] <= 'Z')
+		s2[0] += 32;
 	if(strcmp(s1, s2) == 0){
 		d->i = -1;
 		return;
 	}
 	int i = mystrcmp(s2, s1, 1);
+	free(s1);
 	if(i == 1){
 		s1 = toUpper(str, s);
-		d->words[(d->i)++] = s1;
+		strcpy(d->words[(d->i)++], s1);
+		free(s1);
 	}
+	free(s2);
 }
 void compareUnEqualString(Dict *d, char *s, char *str, int flag) {
 	char *s1 = (char *)malloc(strlen(s));
@@ -61,18 +135,19 @@ void compareUnEqualString(Dict *d, char *s, char *str, int flag) {
 			c++;
 			j--;
 		}
-		if(c > 1)
+		if(c > 1)				//two variances between the word and dictionary words are allowed
 			break;
 	}
+	free(s1);
 	if(c <= 1){
 		
 		if(flag == 1){
 			s1 = toUpper(str, s);
-			d->words[(d->i)++] = s1;		
+			strcpy(d->words[(d->i)++],s1);		
 		}
 		else if(flag == -1){
 			s1 = toUpper(s, str);
-			d->words[(d->i)++] = s1;
+			strcpy(d->words[(d->i)++],s1);
 		}
 	}
 }
@@ -117,51 +192,7 @@ void divideWords(Dict *d, char *s) {
 		i++;
 	}
 }
-/*prints the suggested words in the file interface*/
-void fprintwords(Dict *d, int rows) {
-	int j, residual;
-	rows-= 7;
-	int count = 0;
-    sort((const char**)d->words, d->i);
-    if(d->i > 9)
-    	count = 1;
-    if(d->i < rows){
-    	j = 0;
-	    if(d->i != 0){
-		   	for(;j < d->i-1;j++) {
-		   		if(count && j < 10)
-		   			printf("0");
-				printf("%d)%s\n", j, d->words[j]);
-			}
-			if(count && j < 10)
-				printf("0");	
-			printf("%d)%s\n",j,  d->words[j]);
-			j++;
-		}
-		while(j <= rows){
-			printf("\n");
-			j++;
-		}
-   	}
-	else{
-		j = 0;
-		residual = d->i - rows;
-		while(residual > 0) {
-			if(count && j < 10)
-   				printf("0");
-			printf("%d)%s\t\t%d)%s\n", j, d->words[j], j+rows, d->words[j+rows]);
-			residual--;
-			j++;
-		}
-		for(;j < rows-1;j++){
-   			if(count && j < 10)
-   			printf("0");
-				printf("%d)%s\n", j, d->words[j]);
-	   	}
-		printf("%d)%s\n\n",j,  d->words[j]);
-	}
 
-}	
 /*goes through the dictionary and checks with words with length equal , 1 less or 1 more*/
 void suggest(Dict *d, char *p) {
 	int l1 = strlen(p), l2;
@@ -176,7 +207,7 @@ void suggest(Dict *d, char *p) {
 			if(d->i == -1)
 				break;
 		}
-		else if((l1-l2) == 1)
+		else if((l1-l2) == 1 )
 			compareUnEqualString(d, d->table[j].a, p, l1 - l2);
 		else if((l1-l2) == -1)
 			compareUnEqualString(d, p, d->table[j].a, l1 - l2);
@@ -193,13 +224,15 @@ void Master(Dict *d, char *str) {
 		return;
 	}
 	if(Search(d, str) != NULL)
-		printf("ok1\n");
+		printf("ok\n");
 	
 	else{
 		p = strtok(str, delim);
 		do{
 			if(p == NULL)
 				continue;
+			if(p[strlen(p) - 1] == '\'')
+				p[strlen(p) - 1] = '\0';
 			l1 = strlen(p);
 			if(l1 == 1){
 				i = 1;
@@ -210,11 +243,11 @@ void Master(Dict *d, char *str) {
 			if(d->i > 0){
 				i = d->i;
 				printwords(d);
-				// reallocWords(d);
+				reallocWords(d);
 			}
 			else if(d->i == -1){
 				printf("ok\n");
-				// reallocWords(d);
+				reallocWords(d);
 				i = d->i;
 			}
 			else
@@ -268,27 +301,18 @@ int mystrcmp(char *s1, char *s2, int miss){
 
 
 char* toLower(const char *s) {
-	char *new = (char *)malloc(strlen(s));
-	for (int i = 0; i < strlen(s); ++i)
+	int i;
+	char *new = (char*)malloc(strlen(s) + 1);
+	for (i = 0; i < strlen(s); ++i)
 	{
 		if(s[i] >= 'A' && s[i] <= 'Z'){
 			new[i] = s[i] + 'a' - 'A';
 		}
 		else
 			new[i] = s[i];
-
 	}
+	new[i] = '\0';
 	return new;
-}
-
-int checkUpper(char *p) {
-	int count = 0;
-	for (int i = 0; i < strlen(p); ++i)
-	{
-		if(p[i] >= 'A' && p[i] <= 'Z')
-			count++;
-	}
-	return count;
 }
 
 /*returns 1 if letter of the input word is Capital Alphabet, 0 if not*/
@@ -300,25 +324,16 @@ int allUpper(char * p) {
 	}
 	return 1;
 }
-int checkLower(char *p) {
-	for (int i = 1; i < strlen(p); ++i)
-	{
-		if(p[i] >= 'A' && p[i] <= 'Z')
-			return 0;
-	}
-	return 1;
-}
-
 /*Captializes the first letter in output string s if there are 1 or more Captial letter in input string str*/
 /*if all letter are Captial in str thenoutput string does too*/
 char *toUpper(char *str, char *s) {
-	char *s1, *s2;
-	s1 = strdup(s);
-	s2 = strdup(s);
+	int i;
+	char *s1 = (char *)malloc(strlen(s));
+	strcpy(s1, s);
 	if(str[0] >= 'A' && str[0] <= 'Z' && (s1[0] < 'A' || s1[0]>'Z'))
 		s1[0] -= 32;
 	if(allUpper(str))
-		for (int i = 1; s1[i] != '\0'; ++i)
+		for (i = 1; s1[i] != '\0'; ++i)
 		{
 			if(s1[i] >= 'a' && s1[i] <= 'z'){
 				s1[i] -= 32;
@@ -326,12 +341,13 @@ char *toUpper(char *str, char *s) {
 			}
 		}
 	else
-		for (int i = 1; s1[i] != '\0'; ++i)
+		for (i = 1; s1[i] != '\0'; ++i)
 		{
 			if(s1[i] >= 'A' && s1[i] <= 'Z'){
 				s1[i] += 32;
 
 			}
 		}
-		return s1;
+	s1[i] = '\0';
+	return s1;
 }
