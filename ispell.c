@@ -188,7 +188,7 @@ void printfile(file *f, Dict *d) {
   printf("%s%s", KNRM, f->fileline[1]+f->br + strlen(f->str));
   printf("\n");
   fprintwords(d, r);
-  printf("[SP] <number> R)epl A)ccept I)nsert U)ncap Q)uit\n");
+  printf("[SP] <number> R)epl L)ookup A)ccept I)nsert U)ncap Q)uit\n");
   free(p);
 }
 char *mystrtok(file *f, int w) {
@@ -304,6 +304,9 @@ void Lookup(Dict *d) {
     str[i++] = c;
     enableRawMode();
   printf("\n");
+  str[i] = '\0';
+  if(str[0] == '*' && i == 1)
+    str[0] = '\0';
   for (int i = 0; i < d->size; ++i)
   {
     strcpy(s, d->table[i].a);
