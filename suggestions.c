@@ -31,28 +31,26 @@ static int myCompare (const void * a, const void * b)
     return strcmp (toLower(a1), toLower(a2));
 }
  
-int sort(const char *arr[], int n)
-{
-	int c = 0;
+int sort(const char *arr[], int n) {
     qsort (arr, n, sizeof (const char *), myCompare);
-    for (int i = 0; i < n - c - 1; ++i)
+}
+
+void printwords(Dict *d) {
+	int c = 0, i, j;
+	sort((const char**)d->words, d->i);
+    
+    for (i = 0; i < d->i - c; ++i)
     {
-    	if(strcmp(arr[i], arr[i + 1]) == 0){
-    		for(int j = i; j < n - c - 1;j++)
-    			arr[j] = arr[j+1];
+    	if(strcmp(d->words[i], d->words[i + 1]) == 0){
+    		for(j = i; j < d->i - c;j++)
+    			strcpy(d->words[j], d->words[j+1]);
     		c++;
     	}
     }
-    return c;
-}
-void printwords(Dict *d) {
-	// if(d->i < 1)
-	// 	return;
-	int i, j;
-    i = sort((const char**)d->words, d->i);
-    d->i -= i; 
+    d->i -= c; 
+    
     printf("how about:");
-   	for(j = 0;j < d->i-1;j++)
+   	for(j = 0;j < d->i - 1;j++)
 			printf("%s, ", d->words[j]);
 	printf("%s\n", d->words[j]);
 }
@@ -256,7 +254,7 @@ void Master(Dict *d, char *str) {
 		}while((p = strtok(NULL, delim)) != NULL);	
 	}
 }
-/*Msster string suggesting function for files*/
+/*Master string suggesting function for files*/
 int FMaster(Dict *d, char *str) {
 	int l1 = strlen(str);
 	char *p;
