@@ -1,6 +1,11 @@
 #define CORRECT 200
 #define INCORRECT -1
 #define SUGG 0
+/*for Option replace*/
+#define replaced 1
+#define not_repl 2
+
+/**/
 #define delim "0123456789/%!@#$^&*()_+{}[]=\n;:\".,.><?-\\ \0"
 void Master(Dict *d, char *str);
 
